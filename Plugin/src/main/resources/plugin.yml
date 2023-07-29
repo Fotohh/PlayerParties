@@ -1,0 +1,22 @@
+name: UltimateParties
+version: 0.0.1
+main: com.github.fotohh.ultimateparties.UltimateParties
+api-version: 1.20
+authors:
+  - Fotoh
+description: A lightweight party plugin.
+website: https://fotohh.github.io
+database: false
+load: POSTWORLD
+commands:
+  party:
+    description: General party command
+    aliases:
+      - p
+    usage: /party args...
+    permission: playerparties.commands.party
+  ultimateparties:
+    description: Maintenance command
+    aliases:
+      - up
+    permission: playerparties.commands.ultimateparties

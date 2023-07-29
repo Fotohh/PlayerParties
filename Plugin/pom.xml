@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.github.fotohh.playerparties</groupId>
-        <artifactId>PlayerParties</artifactId>
+        <groupId>com.github.fotohh.ultimateparties</groupId>
+        <artifactId>utlimateparties</artifactId>
         <version>0.0.1</version>
     </parent>
 
-    <artifactId>Plugin</artifactId>
+    <artifactId>plugin</artifactId>
     <version>0.0.1</version>
     <packaging>jar</packaging>
 
@@ -19,6 +19,33 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
 
     <dependencies>
         <dependency>
@@ -44,8 +71,8 @@
             <version>1.0.3</version>
         </dependency>
         <dependency>
-            <groupId>com.github.fotohh.playerparties</groupId>
-            <artifactId>PlayerParties</artifactId>
+            <groupId>com.github.fotohh.ultimateparties</groupId>
+            <artifactId>up-api</artifactId>
             <version>0.0.1</version>
         </dependency>
     </dependencies>
