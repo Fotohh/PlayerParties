@@ -10,10 +10,7 @@ import com.github.fotohh.ultimateparties.api.party.PartySettings;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class PartyImpl implements Party {
 
@@ -29,6 +26,7 @@ public class PartyImpl implements Party {
         currentOwnerUUID = playerUUID;
         partyUUID = UUID.randomUUID();
         this.parties = parties;
+        settings.addAll(Arrays.asList(PartySettings.values()));
         parties.getServer().getPluginManager().callEvent(new OnPartyCreate(this, Bukkit.getPlayer(playerUUID)));
         parties.getPartyManager().addParty(this);
         parties.getPlayerManager().getPlayer(playerUUID).setParty(this);
@@ -65,7 +63,7 @@ public class PartyImpl implements Party {
     public void disband(){
         members.clear();
         currentOwnerUUID = null;
-        parties.getPartyManager().disbandParty(this);
+        parties.getPartyManager().removeParty(this);
     }
 
     @Override
@@ -132,7 +130,6 @@ public class PartyImpl implements Party {
 
     @Override
     public void kickPlayer(UUID uuid) {
-
         members.remove(uuid);
     }
 

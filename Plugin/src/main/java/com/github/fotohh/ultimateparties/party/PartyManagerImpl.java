@@ -17,14 +17,14 @@ public class PartyManagerImpl implements PartyManager {
     }
 
     @Override
-    public void disbandParty(Party party) {
+    public void removeParty(Party party) {
 
         party.getMembers().forEach((uuid, type) -> {
             Player player = Bukkit.getPlayer(uuid);
             player.sendMessage("The party has been disbanded!");
         });
 
-        party.disband();
+        parties.remove(party);
     };
 
     @Override

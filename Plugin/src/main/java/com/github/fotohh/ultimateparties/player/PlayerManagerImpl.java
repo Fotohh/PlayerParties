@@ -32,11 +32,9 @@ public class PlayerManagerImpl implements PlayerManager {
 
     @Override
     public PartyPlayer getPlayer(UUID uuid) {
-        return partyPlayers.computeIfAbsent(uuid, u -> {
-            PartyPlayer player = new PartyPlayerImpl(u);
-            addPlayer(u);
-            return player;
-        });
+        PartyPlayer player = partyPlayers.getOrDefault(uuid, new PartyPlayerImpl(uuid));
+        partyPlayers.putIfAbsent(uuid, player);
+        return player;
     }
 
 }

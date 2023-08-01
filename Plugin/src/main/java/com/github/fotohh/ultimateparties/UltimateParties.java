@@ -9,13 +9,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class UltimateParties extends JavaPlugin implements UltimatePartiesAPI {
 
-    PlayerManager playerManager = new PlayerManagerImpl();
-    PartyManager partyManager = new PartyManagerImpl();
+    private final PlayerManager playerManager = new PlayerManagerImpl();
 
+    private final PartyManager partyManager = new PartyManagerImpl();
+
+    @Override
     public PartyManager getPartyManager() {
         return partyManager;
     }
 
+    @Override
     public PlayerManager getPlayerManager() {
         return playerManager;
     }
@@ -26,12 +29,11 @@ public class UltimateParties extends JavaPlugin implements UltimatePartiesAPI {
     }
 
     @Override
-    public void onDisable() {
-
-    }
+    public void onDisable() {}
 
     @Override
     public JavaPlugin getPlugin() {
         return this;
     }
+
 }
