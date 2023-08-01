@@ -7,6 +7,7 @@ import com.github.fotohh.ultimateparties.api.party.MemberType;
 import com.github.fotohh.ultimateparties.api.party.Party;
 import com.github.fotohh.ultimateparties.api.party.PartyInvite;
 import com.github.fotohh.ultimateparties.api.party.PartySettings;
+import com.github.fotohh.ultimateparties.api.player.PartyPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -18,6 +19,8 @@ public class PartyImpl implements Party {
 
     private UUID currentOwnerUUID;
 
+    boolean isDisbanded = false;
+
     private final UUID partyUUID;
 
     private final UltimateParties parties;
@@ -27,6 +30,7 @@ public class PartyImpl implements Party {
         partyUUID = UUID.randomUUID();
         this.parties = parties;
         settings.addAll(Arrays.asList(PartySettings.values()));
+        members.put(playerUUID, MemberType.OWNER);
         parties.getServer().getPluginManager().callEvent(new OnPartyCreate(this, Bukkit.getPlayer(playerUUID)));
         parties.getPartyManager().addParty(this);
         parties.getPlayerManager().getPlayer(playerUUID).setParty(this);
@@ -61,9 +65,20 @@ public class PartyImpl implements Party {
 
     @Override
     public void disband(){
+        for(UUID uuid : members.keySet()){
+            PartyPlayer p = parties.getPlayerManager().getPlayer(uuid);
+            p.setParty(null);
+        }
         members.clear();
         currentOwnerUUID = null;
+        settings.clear();
         parties.getPartyManager().removeParty(this);
+        isDisbanded = true;
+    }
+
+    @Override
+    public boolean isDisbanded() {
+        return isDisbanded;
     }
 
     @Override

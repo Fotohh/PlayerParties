@@ -55,6 +55,13 @@ public interface Party {
     void disband();
 
     /**
+     * Returns whether the party is disbanded. Used for pending invites that are still in player's inboxes.
+     * @return true if the party is disbanded, false otherwise.
+     * @since 0.0.1
+     */
+    boolean isDisbanded();
+
+    /**
      * Gets the UUID of the party, which serves as a unique identifier for the party.
      *
      * @return The UUID of the party.

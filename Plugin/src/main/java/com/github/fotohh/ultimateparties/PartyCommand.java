@@ -45,15 +45,29 @@ public class PartyCommand {
                         }
                         if(args.length == 2){
                             Player player = Bukkit.getPlayer(args[1]);
-                            if(player == null || player.isOnline()){
+                            if(player == null || !player.isOnline()){
                                 commandExecution.getPlayer().sendMessage("That player is invalid!");
+                                return;
+                            }
+                            if(player.getUniqueId().equals(commandExecution.getPlayer().getUniqueId())){
+                                commandExecution.getPlayer().sendMessage("You cannot promote yourself!");
                                 return;
                             }
                             if(!party.getMembers().containsKey(player.getUniqueId())){
                                 commandExecution.getPlayer().sendMessage("That player is not in the party!");
+                                return;
                             }
+                            if(party.getMemberType(player.getUniqueId()).getWeight() >= party.getMemberType(commandExecution.getPlayer().getUniqueId()).getWeight()){
+                                commandExecution.getPlayer().sendMessage("You cannot promote that player!");
+                                return;
+                            }
+                            if(!party.promotePlayer(player.getUniqueId())){
+                                commandExecution.getPlayer().sendMessage("Unable to promote that player!");
+                                return;
+                            }
+                            commandExecution.getPlayer().sendMessage("Successfully promoted the player!");
                         }else{
-                            commandExecution.getPlayer().sendMessage("Incorrect usage! /party demote <player>");
+                            commandExecution.getPlayer().sendMessage("Incorrect usage! /party promote <player>");
                         }
                     } else if (args[0].equalsIgnoreCase("demote")) {
                         Party party = parties.getPlayerManager().getPlayer(commandExecution.getPlayer().getUniqueId()).getParty();
@@ -66,7 +80,29 @@ public class PartyCommand {
                             return;
                         }
                         if(args.length == 2){
-
+                            Player player = Bukkit.getPlayer(args[1]);
+                            if(player == null || !player.isOnline()){
+                                commandExecution.getPlayer().sendMessage("That player is invalid!");
+                                return;
+                            }
+                            if(player.getUniqueId().equals(commandExecution.getPlayer().getUniqueId())) {
+                                player.sendMessage("You cannot demote yourself!");
+                                return;
+                            }
+                            if(!party.getMembers().containsKey(player.getUniqueId())){
+                                commandExecution.getPlayer().sendMessage("That player is not in the party!");
+                                return;
+                            }
+                            if(party.getMemberType(player.getUniqueId()).getWeight() >= party.getMemberType(commandExecution.getPlayer().getUniqueId()).getWeight()){
+                                commandExecution.getPlayer().sendMessage("You cannot demote that player!");
+                                return;
+                            }
+                            if(!party.demotePlayer(player.getUniqueId())){
+                                commandExecution.getPlayer().sendMessage("Unable to demote that player!");
+                                return;
+                            }
+                            party.demotePlayer(player.getUniqueId());
+                            commandExecution.getPlayer().sendMessage("Successfully demoted the player!");
                         }else{
                             commandExecution.getPlayer().sendMessage("Incorrect usage! /party demote <player>");
                         }
@@ -141,6 +177,11 @@ public class PartyCommand {
                                 return;
                             }
 
+                            if(party.getMembers().containsKey(player.getUniqueId())){
+                                commandExecution.getPlayer().sendMessage("That player is already in the party!");
+                                return;
+                            }
+
                             parties.getPlayerManager().getPlayer(commandExecution.getPlayer().getUniqueId()).getParty().invitePlayer(player.getUniqueId(), commandExecution.getPlayer().getUniqueId());
                             player.sendMessage("You have been invited to " + commandExecution.getPlayer().getDisplayName() + "'s party! Run /party accept or /party accept " + commandExecution.getPlayer().getDisplayName());
                         } else {
@@ -156,7 +197,7 @@ public class PartyCommand {
                             commandExecution.getPlayer().sendMessage("You do not have the required permissions to execute this command!");
                             return;
                         }
-                        parties.getPartyManager().removeParty(party);
+                        party.disband();
                     } else if (args[0].equalsIgnoreCase("kick")) {
                         Party party = parties.getPlayerManager().getPlayer(commandExecution.getPlayer().getUniqueId()).getParty();
                         if (party == null) {
@@ -206,16 +247,32 @@ public class PartyCommand {
 
                         PartyPlayer player = parties.getPlayerManager().getPlayer(commandExecution.getPlayer().getUniqueId());
 
+                        player.getPartyInvites().removeIf(inv -> inv.getParty().isDisbanded());
+
                         if (player.getPartyInvites().isEmpty()) {
                             commandExecution.getPlayer().sendMessage("You must have a party invite pending to run this command!");
                             return;
                         }
 
+                        if(player.getParty() != null){
+                            commandExecution.getPlayer().sendMessage("You must leave your current party to accept the invite!");
+                            return;
+                        }
+
                         PartyInvite latestInvite = player.getPartyInvites().get(0);
 
+                        if(latestInvite.getParty().getMembers().containsKey(player.getUUID())){
+                            commandExecution.getPlayer().sendMessage("You are already in that party!");
+                            return;
+                        }
 
                         if (args.length == 2) {
                             for (PartyInvite invite : player.getPartyInvites()) {
+
+                                if(latestInvite.getParty().isDisbanded()){
+                                    player.getPartyInvites().remove(latestInvite);
+                                    continue;
+                                }
 
                                 Player p = Bukkit.getPlayer(invite.getInviter());
 
@@ -235,6 +292,8 @@ public class PartyCommand {
                         }
                     } else if (args[0].equalsIgnoreCase("deny")) {
                         PartyPlayer player = parties.getPlayerManager().getPlayer(commandExecution.getPlayer().getUniqueId());
+
+                        player.getPartyInvites().removeIf(inv -> inv.getParty().isDisbanded());
 
                         if (player.getPartyInvites().isEmpty()) {
                             commandExecution.getPlayer().sendMessage("You must have a party invite pending to run this command!");
@@ -271,11 +330,10 @@ public class PartyCommand {
 
                         Party party = player.getParty();
 
-                        String msg = String.format("""
+                        String msg = """
                                 -------Party List-------
-                                > (Owner) %s
                                                                 
-                                """, Bukkit.getPlayer(party.getCurrentOwner()).getDisplayName());
+                                """;
 
                         for (UUID uuid : party.getMembers().keySet()) {
                             Player target = Bukkit.getPlayer(uuid);
