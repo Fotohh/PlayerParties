@@ -7,7 +7,6 @@ authors:
 description: A lightweight party plugin.
 website: https://fotohh.github.io
 database: false
-load: POSTWORLD
 commands:
   party:
     description: General party command
